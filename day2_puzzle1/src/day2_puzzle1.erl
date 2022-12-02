@@ -35,13 +35,13 @@ count_shape_score(scissors) -> 3.
 % 3 if the round was a draw, 
 % 6 if you won
 % ).
-count_result_score(scissors, rock) -> 6;
-count_result_score(rock, paper) -> 6;
-count_result_score(paper, scissors) -> 6;
 count_result_score(rock, scissors) -> 0;
 count_result_score(paper, rock) -> 0;
 count_result_score(scissors, paper) -> 0;
-count_result_score(OpponentMove, MyMove) when MyMove == OpponentMove -> 3.
+count_result_score(OpponentMove, MyMove) when MyMove == OpponentMove -> 3;
+count_result_score(scissors, rock) -> 6;
+count_result_score(rock, paper) -> 6;
+count_result_score(paper, scissors) -> 6.
 
 read_and_parse_data(Filename) ->
     {ok, RawBinaryInput} = file:read_file(Filename),
