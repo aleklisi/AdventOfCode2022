@@ -14,8 +14,6 @@ main(Args) ->
     FilesAndDrisList = list_files_and_dirs(ShellHistory),
     DirsWithFilesTheyInclude = find_files_in_dirs(FilesAndDrisList),
     FoldersWithSizes = get_folders_sizes(DirsWithFilesTheyInclude),
-    % To begin, find all of the directories with a total size of at most 100000,
-    % then calculate the sum of their total sizes.
     Answer = lists:sum([Size || {_, Size} <- FoldersWithSizes, Size < 100000]),
     io:format("Answer: ~p~n", [Answer]),
     erlang:halt(0).
@@ -45,8 +43,7 @@ parse_command([$l, $s, 10 | RawContent]) ->
     {ls, Content}.
 
 list_files_and_dirs(ShellHistory) ->
-
-    {_, FilesAndDirs} = lists:foldl(fun execute_command/2, {[], []}, ShellHistory),
+    {_, FilesAndDirs} = lists:foldl(fun execute_command/2, {[], [{dir, ["/"]}]}, ShellHistory),
     lists:map(
         fun({dir, Path}) -> {dir, lists:reverse(Path)};
            ({file, Path, Size}) -> {file, lists:reverse(Path), Size}
@@ -83,3 +80,4 @@ get_folders_sizes(DirsWithFilesTheyInclude) ->
 
 get_folder_size({FolderName, Files}) ->
     {FolderName, lists:sum([Size || {file, _Name, Size} <- Files])}.
+
