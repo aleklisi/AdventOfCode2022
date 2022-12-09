@@ -1,6 +1,5 @@
 -module(day9_puzzle1).
 
-%% API exports
 -export([main/1]).
 
 %%====================================================================
@@ -32,8 +31,7 @@ parse_data(RawBinaryInput) ->
 
 execute_moves(HeadMoves) ->
     Acc = #{
-        head_pos => {0, 0},
-        tail_pos => {0, 0},
+        rope => [{0, 0} || _ <- lists:seq(1, 2)],
         visited_squares => sets:new()
     },
     #{visited_squares := Visited} = lists:foldl(fun execute_move/2, Acc, HeadMoves),
@@ -41,36 +39,39 @@ execute_moves(HeadMoves) ->
 
 execute_move({Direction, Steps}, Accu) ->
     lists:foldl(
-        fun(_Elem, #{head_pos := HeadPos, tail_pos := TailPos, visited_squares := Visited}) ->
-            {NewHeadPos, NewTailPos} = execute_step(Direction, HeadPos, TailPos),
+        fun(_Elem, #{rope := Rope, visited_squares := Visited}) ->
+            NewRope = execute_step(Direction, Rope),
             #{
-                head_pos => NewHeadPos,
-                tail_pos => NewTailPos,
-                visited_squares => sets:add_element(NewTailPos, Visited)
+                rope => NewRope,
+                visited_squares => sets:add_element(lists:last(NewRope), Visited)
             }
         end, Accu, lists:seq(1, Steps)).
 
-
-execute_step(Direction, {HeadX, HeadY}, {TailX, TailY}) ->
-    NewHeadPos = {NewHeadX, NewHeadY} = case Direction of
+execute_step(Direction, _Rope = [{HeadX, HeadY} | Rest ]) ->
+    NewHeadPos = case Direction of
         "U" -> {HeadX, HeadY + 1};
         "D" -> {HeadX, HeadY - 1};
         "L" -> {HeadX - 1, HeadY};
         "R" -> {HeadX + 1, HeadY}
     end,
-    NewTailPos = maybe_move_tail(NewHeadX, NewHeadY, TailX, TailY),
-    {NewHeadPos, NewTailPos}.
+    {Last, OthersRev} = lists:foldl(
+        fun(NextElem, {PrevElem, Moved}) ->
+            NewPrevPos = maybe_move_tail(PrevElem, NextElem),
+            {NewPrevPos, [PrevElem | Moved]}
+    end, {NewHeadPos, []}, Rest),
+    lists:reverse([Last | OthersRev]).
 
-
-maybe_move_tail(HeadX, HeadY, TailX, TailY) ->
+maybe_move_tail({HeadX, HeadY}, {TailX, TailY}) ->
     DistanceSquared = distance_squared(HeadX, HeadY, TailX, TailY),
     NewTailPos = if
         DistanceSquared =< 2 ->
-            [{TailX, TailY}];
+            {TailX, TailY};
         true ->
-            [{_NewTailX, _NewTailY}] = [ {X, Y} ||{X, Y} <- moves(TailX, TailY), distance_squared(HeadX, HeadY, X, Y) < 2]
+            Moves = moves(TailX, TailY),
+            [{_, NewX, NewY} | _] = lists:keysort(1, [{distance_squared(HeadX, HeadY, X, Y), X, Y} ||{X, Y} <- Moves]),
+            {NewX, NewY}
     end,
-    hd(NewTailPos).
+    NewTailPos.
 
 moves(TailX, TailY) ->
     [
