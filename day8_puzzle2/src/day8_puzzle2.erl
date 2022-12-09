@@ -1,5 +1,6 @@
 -module(day8_puzzle2).
 
+-compile(export_all).
 -include_lib("eunit/include/eunit.hrl").
 
 %% API exports
