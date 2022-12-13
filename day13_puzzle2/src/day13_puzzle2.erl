@@ -16,8 +16,9 @@ main(Args) ->
     
     AllPacketsSorted = lists:sort(fun({A}, {B}) -> compare(A, B) end, AllPackets),
     
-    {FirstDivider, _} = lists:keyfind({[[2]]}, 2, lists:enumerate(AllPacketsSorted)),
-    {SecondDivider, _} = lists:keyfind({[[6]]}, 2, lists:enumerate(AllPacketsSorted)),
+    EnumeratedSortedPackets = lists:enumerate(AllPacketsSorted),
+    {FirstDivider, _} = lists:keyfind({[[2]]}, 2, EnumeratedSortedPackets),
+    {SecondDivider, _} = lists:keyfind({[[6]]}, 2, EnumeratedSortedPackets),
     Answer = FirstDivider * SecondDivider,
     io:format("Answer: ~p~n", [Answer]),
     erlang:halt(0).
