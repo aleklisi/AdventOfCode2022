@@ -12,10 +12,9 @@ main(Args) ->
     {ok, RawBinaryInput} = file:read_file(hd(Args)),
     Packets = parse_data(RawBinaryInput),
     
-    % Uncomment to see the trace in the output
-    % dbg:tracer(),
-    % dbg:p(all, c),
-    % dbg:tpl(?MODULE, compare, x),
+    dbg:tracer(),
+    dbg:p(all, c),
+    dbg:tpl(?MODULE, compare, x),
 
     PacketsInOrder = find_packets_in_order(Packets),
     Answer = lists:sum(lists:map(
