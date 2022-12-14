@@ -1,7 +1,10 @@
 -module(day14_puzzle1).
 
+-feature(maybe_expr, enable).
+
 %% API exports
 -export([main/1]).
+
 
 %%====================================================================
 %% API functions
@@ -29,29 +32,15 @@ run_simulation(MinX, MaxX, MaxY, Board) ->
     end.
 
 drop_send_unit(X, Y, Board, MinX, MaxX, MaxY) ->
-    case X =< MinX orelse X >= MaxX orelse Y >= MaxY of
-        true ->
-            {finish, Board};
-        false ->
-            Down = maps:get({X, Y + 1}, Board, empty),
-            case Down of
-                empty ->
-                    drop_send_unit(X, Y + 1, Board, MinX, MaxX, MaxY);
-                _ ->
-                    DownLeft = maps:get({X - 1, Y + 1}, Board, empty),
-                    case DownLeft of
-                        empty ->
-                            drop_send_unit(X - 1, Y + 1, Board, MinX, MaxX, MaxY);
-                        _ ->
-                            DownRight = maps:get({X + 1, Y + 1}, Board, empty),
-                            case DownRight of
-                                empty ->
-                                    drop_send_unit(X + 1, Y + 1, Board, MinX, MaxX, MaxY);
-                                _ ->
-                                    {continue, maps:put({X, Y}, send, Board)}
-                            end
-                    end
-            end
+    Down = maps:get({X, Y + 1}, Board, empty),
+    DownLeft = maps:get({X - 1, Y + 1}, Board, empty),
+    DownRight = maps:get({X + 1, Y + 1}, Board, empty),
+    if
+        X =< MinX orelse X >= MaxX orelse Y >= MaxY -> {finish, Board};
+        Down == empty -> drop_send_unit(X, Y + 1, Board, MinX, MaxX, MaxY);
+        DownLeft == empty -> drop_send_unit(X - 1, Y + 1, Board, MinX, MaxX, MaxY);
+        DownRight == empty -> drop_send_unit(X + 1, Y + 1, Board, MinX, MaxX, MaxY);
+        true -> {continue, maps:put({X, Y}, send, Board)}
     end.
 
 parse_data(RawBinaryInput) ->
