@@ -36,27 +36,17 @@ run_simulation(MaxY, Board) ->
 
 drop_send_unit(X, Y, Board, MaxY) ->
     Down = get_square(X, Y + 1, Board, MaxY),
-    case Down of
-        empty ->
-            drop_send_unit(X, Y + 1, Board, MaxY);
-        _ ->
-            DownLeft = get_square(X - 1, Y + 1, Board, MaxY),
-            case DownLeft of
-                empty ->
-                    drop_send_unit(X - 1, Y + 1, Board, MaxY);
-                _ ->
-                    DownRight = get_square(X + 1, Y + 1, Board, MaxY),
-                    case DownRight of
-                        empty ->
-                            drop_send_unit(X + 1, Y + 1, Board, MaxY);
-                        _ ->
-                            maps:put({X, Y}, send, Board)
-                    end
-            end
+    DownLeft = get_square(X - 1, Y + 1, Board, MaxY),
+    DownRight = get_square(X + 1, Y + 1, Board, MaxY),
+
+    if
+        Down == empty -> drop_send_unit(X, Y + 1, Board, MaxY);
+        DownLeft == empty -> drop_send_unit(X - 1, Y + 1, Board, MaxY);
+        DownRight == empty -> drop_send_unit(X + 1, Y + 1, Board, MaxY);
+        true -> maps:put({X, Y}, send, Board)
     end.
 
 get_square(X, Y, Board, MaxY) ->
-    
     case Y >= MaxY of
         true ->
             rock;
