@@ -38,7 +38,6 @@ drop_send_unit(X, Y, Board, MaxY) ->
     Down = get_square(X, Y + 1, Board, MaxY),
     DownLeft = get_square(X - 1, Y + 1, Board, MaxY),
     DownRight = get_square(X + 1, Y + 1, Board, MaxY),
-
     if
         Down == empty -> drop_send_unit(X, Y + 1, Board, MaxY);
         DownLeft == empty -> drop_send_unit(X - 1, Y + 1, Board, MaxY);
